@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kim — Centre Ivoiro-Coréen Alassane Ouattara</title>
+<style>
+:root{--bg:#F6F8FC;--bg2:#EDF0F7;--fg:#0F1420;--fg2:#4A5168;--blue:#1A3A8A;--bl:#E8EEFA;--teal:#0A6670;--card:#fff;--bd:#D4D8E8;--ok:#1b7a3a;--ko:#C0181A}
+@media(prefers-color-scheme:dark){:root{--bg:#0C1018;--bg2:#141820;--fg:#E8ECF6;--fg2:#8890B0;--bl:#0A1430;--card:#141820;--bd:#242C40;--blue:#4C74D8}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,sans-serif}
+nav{display:flex;gap:8px;align-items:center;padding:12px 20px;background:var(--card);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:5}
+nav b{margin-right:auto}.kimbtn{display:inline-block;text-decoration:none;border:0;background:var(--teal);color:#fff;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:600}.kimbtn.big{padding:12px 22px;font-size:16px;margin-top:18px;background:#fff;color:var(--blue)}nav a:not(.kimbtn){padding:6px 14px;border-radius:20px;color:var(--fg2);text-decoration:none;font-size:14px}
+nav a.on:not(.kimbtn){background:var(--blue);color:#fff}
+main{max-width:900px;margin:0 auto;padding:28px 16px 80px}
+.hero{background:var(--blue);color:#fff;border-radius:16px;padding:32px;margin-bottom:28px}
+.hero h1{font-size:clamp(26px,5vw,40px);line-height:1.1;margin-bottom:10px}.hero p{opacity:.9;max-width:560px}
+h2{font-size:18px;margin:26px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--bd)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px 18px}
+.card h3{font-size:15px;margin-bottom:4px}.card p,.card li{font-size:13px;color:var(--fg2)}
+.chip{display:inline-block;background:var(--bl);color:var(--blue);border-radius:20px;padding:2px 10px;font-size:11px;font-weight:600;margin:2px 4px 2px 0}
+.chip.ok{background:#e3f5e8;color:var(--ok)}.chip.ko{background:#fde7e7;color:var(--ko)}.chip.wait{background:#fdf4e0;color:#805000}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tabs button{border:1px solid var(--bd);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:20px;cursor:pointer;font-size:13px}
+.tabs button.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.req{margin-bottom:10px}.req .row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.req dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:13px;margin:8px 0}.req dt{color:var(--fg2)}
+.act button{border:0;border-radius:8px;padding:6px 12px;margin-right:6px;cursor:pointer;color:#fff;font-size:12px}
+.b-ok{background:var(--ok)}.b-ko{background:var(--ko)}.b-gr{background:var(--fg2)}
+.empty{color:var(--fg2);padding:20px;text-align:center}
+.tools{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}.tools button{padding:6px 12px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;font-size:12px}
+.warn{background:#fdf4e0;color:#805000;border-radius:10px;padding:12px 16px;font-size:13px;margin-bottom:14px}
+</style>
+</head>
+<body>
+<nav><b>🇨🇮🇰🇷 Kim</b><a href="https://typebot.co/lead-generation-agadvss" class="kimbtn">💬 Parler à Kim</a><a href="#visiteur" id="n1">Visiteur</a><a href="#admin" id="n2">Admin <span id="cnt"></span></a></nav>
+<main id="app"></main>
+
+<script>
+/* ===== CONFIGURATION ===== */
+// Identifiant public du chatbot Typebot (Share > Embed dans Typebot, après publication)
+const TYPEBOT_ID = "lead-generation-agadvss";
+// URL de l'API Snowflake (fonction api/requests.js). Vide = mode démo local sans base.
+const API_URL = "/api/requests";
+const API_HOST = "https://typebot.co"; // domaine de votre bot (lien public : typebot.co/<identifiant>)
+
+/* ===== DONNÉES ===== */
+const ACTIVITES = [
+ {n:"Taekwondo débutant",d:"8–14 ans · Mer & Sam",cap:12,pris:8,ic:"🥋"},
+ {n:"Initiation numérique",d:"Adultes · Lun & Jeu",cap:25,pris:19,ic:"💻"},
+ {n:"Atelier coding jeunes",d:"15–25 ans · mensuel",cap:30,pris:22,ic:"👨‍💻"},
+ {n:"Culture coréenne (K-culture)",d:"Tout public · Ven",cap:40,pris:27,ic:"🎎"},
+ {n:"Hackathon & événements",d:"Selon calendrier",cap:100,pris:60,ic:"🚀"},
+ {n:"Basket loisirs",d:"Tout public · Sam",cap:20,pris:11,ic:"🏀"}];
+const HORAIRES="Lun–Ven 8h–18h · Sam 9h–13h";
+const KEY="kim_requests_v1";
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||seed()}catch(e){return seed()}};
+const save=l=>{try{localStorage.setItem(KEY,JSON.stringify(l))}catch(e){}};
+function seed(){return [
+ {id:"d1",kind:"room",status:"wait",ts:Date.now()-9e6,f:{Visiteur:"Awa Koffi",Date:"2026-11-07",Heure:"14:00",Email:"awa@example.ci"}},
+ {id:"d2",kind:"reg",status:"wait",ts:Date.now()-5e6,f:{Visiteur:"Konan Yao",Activité:"Taekwondo débutant",Email:"yao@example.ci"}},
+ {id:"d3",kind:"part",status:"wait",ts:Date.now()-2e6,f:{Visiteur:"Tech Youth CI",Demande:"Ateliers coding mensuels 15–25 ans",Email:"contact@techyouthci.org"}}]}
+let CACHE=null,ACTS=ACTIVITES;
+const adminKey=()=>{let k="";try{k=sessionStorage.getItem("kim_admin_key")||""}catch(e){}
+  if(!k){k=prompt("Clé admin :")||"";try{sessionStorage.setItem("kim_admin_key",k)}catch(e){}}return k};
+async function api(method,body){
+  const r=await fetch(API_URL,{method,headers:{"Content-Type":"application/json","x-api-key":adminKey()},body:body?JSON.stringify(body):undefined});
+  if(r.status===401){try{sessionStorage.removeItem("kim_admin_key")}catch(e){}throw new Error("Clé admin invalide")}
+  if(!r.ok)throw new Error("Erreur API "+r.status);return r.json()}
+const toReq=r=>({id:r.id,kind:r.kind,status:r.status,ts:new Date(r.created_at).getTime()||Date.now(),
+  f:Object.fromEntries(Object.entries({Visiteur:r.name,"Activité":r.activity,Date:r.req_date,Heure:r.req_hour,Email:r.email,"Détails":r.details}).filter(([,v])=>v))});
+async function refresh(){
+  if(!API_URL){CACHE=load();return}
+  const j=await api("GET");CACHE=j.requests.map(toReq);if(j.activities&&j.activities.length)ACTS=j.activities}
+const KINDS={room:"📅 Salles",reg:"📋 Inscriptions",part:"🤝 Partenariats",help:"💬 Assistance humaine"};
+const ST={wait:"En attente",ok:"Validée",ko:"Refusée",help:"À reprendre"};
+
+/* ===== CHATBOT : pont Typebot → dashboard ===== */
+// Correspondance bloc Typebot → champ (IDs issus de votre export JSON)
+const FIELD={};
+[["Visiteur","jd2v9k881gzxdce2hx89mjt7","w58mlegz9u58iwi900uzkz8s","v9yip8d2exlt95kbfmn04kjf"],
+ ["Date","dqetef0jmitzy9lg6l054ujr","cf9spjxixfvkcxgtlj75ckqw","jwk0djjhpcjnk1so700mz2ur"],
+ ["Heure","mzfyqp1dchjk9iap4yjfd522","ie1jl1z46bh7uarw24bp6uqk","b87kwuw1xsoky20g9msnwlwb"],
+ ["Activité","ejhhnvahph9lgcsa1sjsnohx","h2ppl7qcg7gp0dchve4rsxqu","opvujncjrdfhsep7tvdl4hrh"],
+ ["Email","f7x25ypyes26eovztcfi2jxt","thrmv5rdrik6obcge3y3v994","hhrrkvxjok252nflowyz8ztu"],
+ ["Situation","pc1w0hob8gbtvs0w2z1135bd","urmpe3ms1faq1hesy2hetl38","kgikt6ku3jymzgphjor4pj82"]
+].forEach(r=>r.slice(1).forEach(id=>FIELD[id]=r[0]));
+const KIND_BY_TEXT=[[/room|salle|객실/i,"room"],[/activit|활동/i,"reg"],[/partner|partenariat|파트너/i,"part"]];
+let draft=null;
+function onAnswer(a){
+  if(API_URL) return; // Snowflake : Typebot envoie lui-même les demandes à l'API
+  const f=FIELD[a.blockId]; if(!f) return;
+  draft=draft||{id:"c"+Date.now(),status:"wait",ts:Date.now(),f:{}};
+  if(f==="Situation"){const k=KIND_BY_TEXT.find(x=>x[0].test(a.message));if(k)draft.kind=k[1];}
+  else draft.f[f]=a.message;
+  if(!draft.kind) return;
+  // Enregistrement progressif : la demande apparaît dès qu'elle a une info clé
+  const key=draft.kind==="room"?"Heure":draft.kind==="reg"?"Activité":"Visiteur";
+  if(draft.f[key]||f==="Email"){const l=load(),i=l.findIndex(r=>r.id===draft.id);
+    const c=JSON.parse(JSON.stringify(draft)); i<0?l.unshift(c):l[i]=Object.assign(l[i],c); save(l); updCnt();}
+}
+function startBot(){
+  const s=document.createElement("script");s.type="module";
+  s.textContent=`import Typebot from "https://cdn.jsdelivr.net/npm/@typebot.io/js@0/dist/web.js";
+  window.Typebot=Typebot;
+  Typebot.initBubble({typebot:${JSON.stringify(TYPEBOT_ID)},${API_HOST?`apiHost:${JSON.stringify(API_HOST)},`:""}
+  onAnswer:a=>window.kimOnAnswer(a),onEnd:()=>{window.kimOnEnd()},
+  theme:{button:{backgroundColor:"#1A3A8A",size:"large"},chatWindow:{backgroundColor:"#fff"}},previewMessage:{message:"Bonjour ! Je suis Kim 👋",autoShowDelay:3000}});`;
+  document.body.appendChild(s);
+}
+window.kimOnAnswer=onAnswer;window.kimOnEnd=()=>{draft=null};
+
+/* ===== VUES ===== */
+const $=s=>document.querySelector(s),esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function updCnt(){const n=(CACHE||load()).filter(r=>r.status==="wait"||r.status==="help").length;const e=$("#cnt");if(e)e.textContent=n?"("+n+")":""}
+function visiteur(){
+  $("#app").innerHTML=`<div class="hero"><h1>Centre Ivoiro-Coréen Alassane Ouattara</h1>
+  <p>Sport, culture et TIC. Posez vos questions à <b>Kim</b>, notre assistant IA (FR · EN · 한국어) : demande de salle, inscription à une activité ou proposition de partenariat. Kim prépare votre demande — l'équipe du Centre la valide.</p><a href="https://typebot.co/lead-generation-agadvss" class="kimbtn big">💬 Discuter avec Kim</a></div>
+  <h2>🕒 Horaires</h2><div class="card"><p>${HORAIRES}</p></div>
+  <h2>🏃 Activités</h2><div class="grid">${ACTIVITES.map(a=>`<div class="card"><h3>${a.ic} ${a.n}</h3><p>${a.d}</p><span class="chip">${a.cap-a.pris} places restantes</span></div>`).join("")}</div>
+  <h2>💬 Comment ça marche</h2><div class="card"><ul style="padding-left:18px"><li>Cliquez sur la bulle en bas à droite et choisissez votre langue.</li><li>Kim ne confirme jamais : toute demande passe en « en attente de validation humaine ».</li></ul></div>`;
+}
+let tab="room";
+async function admin(){
+  try{await refresh()}catch(e){$("#app").innerHTML=`<div class="warn">${esc(e.message)}</div>`;return}
+  const l=CACHE;
+  $("#app").innerHTML=`<h2 style="margin-top:0">🔧 Dashboard admin</h2>
+  ${TYPEBOT_ID?"":`<div class="warn">Aucun TYPEBOT_ID configuré.</div>`}
+  <div class="tabs">${Object.entries(KINDS).map(([k,v])=>`<button class="${k===tab?"on":""}" data-t="${k}">${v} (${l.filter(r=>r.kind===k).length})</button>`).join("")}</div>
+  <div id="list"></div>
+  <h2>📋 Places restantes</h2><div class="grid">${ACTS.map(a=>{const v=l.filter(r=>r.kind==="reg"&&r.status==="ok"&&r.f["Activité"]===a.n).length;return `<div class="card"><h3>${a.n}</h3><p>${a.cap-a.pris-v} / ${a.cap}</p></div>`}).join("")}</div>
+  ${API_URL?"":`<div class="tools"><button id="reset">Réinitialiser les données de démo</button></div>`}`;
+  const rows=l.filter(r=>r.kind===tab);
+  $("#list").innerHTML=rows.length?rows.map(r=>`<div class="card req"><div class="row"><b>${esc(r.f.Visiteur||"Visiteur anonyme")}</b><span class="chip ${r.status}">${ST[r.status]}</span></div>
+   <dl>${Object.entries(r.f).filter(([k])=>k!=="Visiteur").map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}<dt>Reçue</dt><dd>${new Date(r.ts).toLocaleString("fr-FR")}</dd></dl>
+   <div class="act"><button class="b-ok" data-a="ok" data-i="${r.id}">Valider</button><button class="b-ko" data-a="ko" data-i="${r.id}">Refuser</button><button class="b-gr" data-a="help" data-i="${r.id}">Contacter</button></div></div>`).join(""):`<div class="empty">Aucune demande dans cette catégorie.</div>`;
+  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;admin()});
+  document.querySelectorAll(".act button").forEach(b=>b.onclick=async()=>{const id=b.dataset.i,st=b.dataset.a;
+    try{if(API_URL)await api("PATCH",{id,status:st});else{const L=load(),r=L.find(x=>x.id===id);r.status=st;if(st==="help")r.kind="help";save(L)}}
+    catch(e){alert(e.message)}admin()});
+  if($("#reset"))$("#reset").onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}admin()};
+}
+function route(){const h=location.hash==="#admin";$("#n1").className=h?"":"on";$("#n2").className=h?"on":"";h?admin():visiteur();updCnt()}
+addEventListener("hashchange",route);addEventListener("storage",()=>{if(location.hash==="#admin")admin();updCnt()});
+route();startBot();
+</script>
+</body>
+</html>
